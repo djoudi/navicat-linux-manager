@@ -1,0 +1,15 @@
+name: Validate
+on: [push, pull_request]
+jobs:
+  checks:
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, ubuntu-26.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y shellcheck bats
+      - run: shellcheck navicat-manager.sh install.sh uninstall.sh lib/*.sh standalone/navicat-manager.sh
+      - run: bats tests
+      - run: python3 -m unittest discover -s tests -p 'test_*.py'
+      - run: python3 -m py_compile lib/manager.py
